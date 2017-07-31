@@ -5,13 +5,6 @@
 	(global.Vimeo = global.Vimeo || {}, global.Vimeo.Player = factory());
 }(this, (function () { 'use strict';
 
-var arrayIndexOfSupport = typeof Array.prototype.indexOf !== 'undefined';
-var postMessageSupport = typeof window.postMessage !== 'undefined';
-
-if (!arrayIndexOfSupport || !postMessageSupport) {
-    throw new Error('Sorry, the Vimeo Player API is not available in this browser.');
-}
-
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 
@@ -614,6 +607,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 });
 });
 
+var isNode = typeof global !== 'undefined' && {}.toString.call(global) === '[object global]';
+var arrayIndexOfSupport = typeof Array.prototype.indexOf !== 'undefined';
+var postMessageSupport = typeof window !== 'undefined' && typeof window.postMessage !== 'undefined';
+
+function checkCompatibility() {
+    if (!arrayIndexOfSupport || !postMessageSupport) {
+        throw new Error('Sorry, the Vimeo Player API is not available in this browser.');
+    }
+}
+
 /**
  * @module lib/callbacks
  */
@@ -1107,6 +1110,12 @@ function processData(player, data) {
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+if (!isNode) {
+    checkCompatibility();
+    initializeEmbeds();
+    resizeEmbeds();
+}
 
 var playerMap = new WeakMap();
 var readyMap = new WeakMap();
@@ -2072,9 +2081,6 @@ var Player = function () {
 
     return Player;
 }();
-
-initializeEmbeds();
-resizeEmbeds();
 
 return Player;
 
